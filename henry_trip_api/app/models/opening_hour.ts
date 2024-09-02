@@ -17,6 +17,9 @@ export default class OpeningHour extends BaseModel
     @column()
     declare end: number
 
+    @column()
+    declare activityId: number
+
     @column.dateTime({ autoCreate: true })
     declare createdAt: DateTime
 
