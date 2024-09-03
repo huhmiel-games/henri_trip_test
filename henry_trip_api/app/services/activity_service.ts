@@ -10,16 +10,18 @@ export default class ActivityService
     {
         try
         {
-            const activities = await Activity.query().preload('openingHours')//.preload('schedules')
+            const activities = await Activity.query().preload('openingHours').preload('category')
             return activities.map((activity) => activity.serialize({
-                fields: {
-                    omit: ['categoryId']
-                },
                 relations: {
                     openingHours: {
                         fields: {
-                            omit: ['id', 'activityId', 'createdAt', 'updatedAt'],
+                            omit: ['activityId', 'createdAt', 'updatedAt'],
                         },
+                    },
+                    category: {
+                        fields: {
+                            omit: ['createdAt', 'updatedAt']
+                        }
                     }
                 }
             }))
@@ -32,6 +34,30 @@ export default class ActivityService
 
     async create(payload: ActivityCreation)
     {
+        // update
+        if (payload.id != undefined)
+        {
+            const existingActivity = await Activity.find(payload.id)
+
+            if (existingActivity)
+            {
+                const { openingHours } = payload
+                if (openingHours)
+                {
+                    openingHours.forEach(async e => {
+                        const existingOpeningHour = await OpeningHour.find(e.id)
+                        if (existingOpeningHour)
+                        {
+                            await existingOpeningHour.merge(e).save()
+                        }
+                    })
+                }
+                await existingActivity.merge(payload).save()
+                return existingActivity
+            }
+        }
+
+        // create
         const { title, description, address, tel, website, categoryId } = payload
         const activity = await Activity.create({
             title,
@@ -63,16 +89,13 @@ export default class ActivityService
 
     async find(id: number)
     {
-        const activity = await Activity.query().where('id', id).preload('openingHours').firstOrFail()
+        const activity = await Activity.query().where('id', id).preload('openingHours').preload('category').firstOrFail()
 
         return activity.serialize({
-            fields: {
-                omit: ['categoryId']
-            },
             relations: {
                 openingHours: {
                     fields: {
-                        omit: ['id', 'activityId', 'createdAt', 'updatedAt'],
+                        omit: ['activityId', 'createdAt', 'updatedAt'],
                     },
                 }
             }
