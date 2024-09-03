@@ -35,7 +35,7 @@ export default class Activity extends BaseModel
     declare updatedAt: DateTime
 
     @belongsTo(() => Category)
-    declare activity: BelongsTo<typeof Category>
+    declare category: BelongsTo<typeof Category>
 
     @hasMany(() => Schedule)
     declare schedules: HasMany<typeof Schedule>
