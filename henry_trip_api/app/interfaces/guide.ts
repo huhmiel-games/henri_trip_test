@@ -1,4 +1,5 @@
 export interface GuideCreation {
+    id?: number
     title: string
     description: string
     days: number

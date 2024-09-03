@@ -39,6 +39,20 @@ export default class GuideService
 
     async create(payload: GuideCreation)
     {
+        // update
+        if (payload.id != undefined)
+        {
+            const existingGuide = await Guide.find(payload.id)
+
+            if (existingGuide)
+            {
+                await existingGuide.merge(payload).save()
+                return existingGuide
+            }
+        }
+
+
+        // create
         const guide = await Guide.create({
             title: payload.title,
             description: payload.description,

@@ -2,6 +2,7 @@ import vine from '@vinejs/vine'
 
 export const guideValidator = vine.compile(
     vine.object({
+        id: vine.number().optional(),
         title: vine.string(),
         description: vine.string(),
         days: vine.number(),
